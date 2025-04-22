@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 
 app = Flask(__name__)
@@ -45,7 +46,8 @@ def create_account():
             conn.close()
             return redirect(url_for('create_account'))
         # now attempting insertion
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, email, password))
+        hashed_password = generate_password_hash(password) #now with hashing!
+        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, email, hashed_password))
         conn.commit()
         conn.close()
         if user:
@@ -67,13 +69,14 @@ def login():
             flash('Please fill out all fields!')
             return redirect(url_for('login'))
         
-        # connect to database, execute query, if successful the variable user will be populated
+        # connect to database, execute query, if successful the variable user will be populated, first find user, check password next
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE user_name = ? AND password = ?', (username, password)).fetchone()
+        user = conn.execute('SELECT * FROM users WHERE user_name = ?', (username,)).fetchone()
         conn.close()
 
         # if user is successfully logged in, set session username to username, with feedback messages
-        if user:
+        # now checks hashed password
+        if user and check_password_hash(user['password'], password):
             session['username'] = username
             flash('Logged in successfully!')
             return redirect(url_for('index'))

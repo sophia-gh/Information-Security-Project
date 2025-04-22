@@ -12,7 +12,7 @@
             <tr>
                 <td>{{ user['user_name'] }}</td>
                 <td>{{ user['email'] }}</td>
-                <td>{{ user['password'] }}</td>
+                <td><span class="hidden-password" title = "{{ user['password'] }}">■■■■■■■■</span></td>
             </tr>
         {% endfor %}
     </table>
