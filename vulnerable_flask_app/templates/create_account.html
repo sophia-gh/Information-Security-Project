@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Create Account {% endblock %}</h1>
+    <form method="POST">
+        <label>Username:</label><br>
+        <input type="text" name="username" placeholder="username" value="{{ request.form['username'] }}"><br><br>
+
+        <label>Email:</label><br>
+        <input type="text" name="email" placeholder="email@example.com" value="{{ request.form['email'] }}"><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" placeholder="password" value="{{ request.form['password'] }}"><br><br>
+
+        <button type="submit">Create Account</button>
+    </form>
+{% endblock %}
