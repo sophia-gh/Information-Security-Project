@@ -92,3 +92,6 @@ def logout():
     flash('Logged out successfully.')
     return redirect(url_for('index'))
 
+@app.route('/secret_page')
+def secret_page():
+    return render_template('secret.html')
