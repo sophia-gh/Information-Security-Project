@@ -69,20 +69,26 @@ def login():
             flash('Please fill out all fields!')
             return redirect(url_for('login'))
         
-        # connect to database, execute query, if successful the variable user will be populated, first find user, check password next
+        #----------------------------------------------------------------------------------------------------------------------------
+        # query structured to be vulnerable to injection -- no paramaterization
+        # attack example: user can enter a malicious string for 'username' or 'password'
+        #             ex: username = ('OR 1=1) -- this would log attacker in as first available user
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE user_name = ?', (username,)).fetchone()
+        cursor = conn.cursor()
+        query = f"SELECT * FROM users WHERE user_name = '{username}' AND password = '{password}'"
+        user = cursor.execute(query).fetchone()
         conn.close()
-
-        # if user is successfully logged in, set session username to username, with feedback messages
-        # now checks hashed password
-        if user and check_password_hash(user['password'], password):
-            session['username'] = username
+        #----------------------------------------------------------------------------------------------------------------------------
+        # checks if user is populated, now sets session to username from database, not from input, so an attacker could log in and 
+        # sensitive data
+        if user:
+            session['username'] = user['user_name']
             flash('Logged in successfully!')
             return redirect(url_for('index'))
         else:
             flash('Invalid username or password.')
             return redirect(url_for('login'))
+        #----------------------------------------------------------------------------------------------------------------------------
     return render_template('login.html')
 
 @app.route('/logout')

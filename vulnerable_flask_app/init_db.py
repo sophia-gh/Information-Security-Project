@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash  # for
 connection = sqlite3.connect('vulnerable_database.db')
 
 #opens schema file and executes the sql commands, creates user table
-with open('databaseSchema.sql') as f:
+with open('vdatabaseSchema.sql') as f:
     connection.executescript(f.read())
 
 #used to interact with the rows of the database table
