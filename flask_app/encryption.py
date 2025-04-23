@@ -2,11 +2,15 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
 import base64
 
-global_key = get_random_bytes(32) 
+# to keep key consistent, stopped using random generation and went with one consistent key
+global_key = b'\x05\xeat\x07&\t\x87B\xb0\xf6\xf8\xcbT\xf6r\x8f\xf9\xf6$\xf0\x19\x0b\x0c\x03,\x00\x98\xba\xdd\x8bl0' 
+
 
 def AES_ENCRYPT(user_data, key):
     cipher = AES.new(key, AES.MODE_EAX)
     ciphertext, tag = cipher.encrypt_and_digest(user_data.encode())
+    print('E: ')
+    print(cipher.nonce)
     bundle = cipher.nonce + tag + ciphertext
     return base64.b64encode(bundle).decode('utf-8')
 

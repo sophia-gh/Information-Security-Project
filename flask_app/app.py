@@ -17,13 +17,18 @@ def index():
     conn = get_db_connection()
     all_users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
-    # decrypted_users = []
-    # for user in all_users:
-    #     user_dict = dict(user)  # convert Row object to dictionary
-    #     user_dict['email'] = AES_DECRYPT(user_dict['email'], global_key)
-    #     decrypted_users.append(user_dict)
+    decrypted_users = []
+    for user in all_users:
+        user_dict = dict(user)
+        user_dict['user_name'] = user['user_name']  # convert Row object to dictionary
+        user_dict['password'] = user['password']
+        if user and (user['user_name'] == session.get('username')):
+            user_dict['email'] = AES_DECRYPT(user['email'], global_key)
+        else:
+            user_dict['email'] = user['email']
+        decrypted_users.append(user_dict)
 
-    return render_template('index.html', all_users=all_users)
+    return render_template('index.html', all_users=decrypted_users)
 
 @app.route('/create_account', methods=['GET', 'POST'])       #get and post methods allow both fetching and adding to the database
 def create_account():

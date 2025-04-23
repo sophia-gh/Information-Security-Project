@@ -14,8 +14,10 @@ with open('databaseSchema.sql') as f:
 cur = connection.cursor() 
 
 #populate users with data
+eTest1 = AES_ENCRYPT('test1@example.com', global_key)
+
 cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('johndoe', AES_ENCRYPT('john@example.com', global_key), generate_password_hash('supersecret')))
-cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test1', AES_ENCRYPT('test1@example.com', global_key), generate_password_hash('password1')))
+cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test1',  AES_ENCRYPT('test1@example.com', global_key), generate_password_hash('password1')))
 cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test2', AES_ENCRYPT('test2@example.com', global_key), generate_password_hash('password2')))
 cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test3', AES_ENCRYPT('test3@example.com', global_key), generate_password_hash('password3')))
 
