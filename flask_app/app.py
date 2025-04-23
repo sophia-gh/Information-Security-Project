@@ -1,6 +1,7 @@
+from flask import Flask, render_template, request, url_for, flash, redirect, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
-from flask import Flask, render_template, request, url_for, flash, redirect, session
+from encryption import global_key, AES_ENCRYPT, AES_DECRYPT # for encrypting user emails
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'devKeyForDEV'
@@ -10,13 +11,18 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-
 @app.route('/')
 def index():
     # fetch data from the database and display it on the index page
     conn = get_db_connection()
     all_users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
+    # decrypted_users = []
+    # for user in all_users:
+    #     user_dict = dict(user)  # convert Row object to dictionary
+    #     user_dict['email'] = AES_DECRYPT(user_dict['email'], global_key)
+    #     decrypted_users.append(user_dict)
+
     return render_template('index.html', all_users=all_users)
 
 @app.route('/create_account', methods=['GET', 'POST'])       #get and post methods allow both fetching and adding to the database
@@ -27,6 +33,7 @@ def create_account():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        
         # simple input error handling 
         if not username or not email or not password:
             flash('Please fill out all fields!')
@@ -35,7 +42,11 @@ def create_account():
         # check for existence of info before attempting insertion
         conn = get_db_connection()
         user_exists = conn.execute('SELECT * FROM users WHERE user_name = ?', (username,)).fetchone()
-        email_exists = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+
+        #encrypt email first to check correctly
+        encrypted_email = AES_ENCRYPT(email, global_key)
+        email_exists = conn.execute('SELECT * FROM users WHERE email = ?', (encrypted_email,)).fetchone()
+        
         # simple input error handling 
         if user_exists:
             flash('Username already exists. Try another one.')
@@ -45,9 +56,10 @@ def create_account():
             flash('Account already exits for this email. Try another one.')
             conn.close()
             return redirect(url_for('create_account'))
+       
         # now attempting insertion
         hashed_password = generate_password_hash(password) #now with hashing!
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, email, hashed_password))
+        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, hashed_password))
         conn.commit()
         conn.close()
         if user:
