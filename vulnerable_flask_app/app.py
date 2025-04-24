@@ -1,6 +1,7 @@
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from flask import Flask, render_template, request, url_for, flash, redirect, session
+from encryption import global_key, AES_ENCRYPT, AES_DECRYPT # for encrypting user emails
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'devKeyForDEV'
@@ -17,7 +18,19 @@ def index():
     conn = get_db_connection()
     all_users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
-    return render_template('index.html', all_users=all_users)
+    # create seperate list of users to store manipulated (decrypted) email
+    decrypted_users = []
+    for user in all_users:
+        user_dict = dict(user)
+        user_dict['user_name'] = user['user_name']  # convert Row object to dictionary
+        user_dict['password'] = user['password']
+        if user and (user['user_name'] == session.get('username')):     #if a user is logged in, show that user's decrypted email
+            user_dict['email'] = AES_DECRYPT(user['email'], global_key)
+        else:
+            user_dict['email'] = user['email']
+        decrypted_users.append(user_dict)
+
+    return render_template('index.html', all_users=decrypted_users)
 
 @app.route('/create_account', methods=['GET', 'POST'])       #get and post methods allow both fetching and adding to the database
 def create_account():
@@ -35,7 +48,11 @@ def create_account():
         # check for existence of info before attempting insertion
         conn = get_db_connection()
         user_exists = conn.execute('SELECT * FROM users WHERE user_name = ?', (username,)).fetchone()
-        email_exists = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+
+        #encrypt email first to check correctly
+        encrypted_email = AES_ENCRYPT(email, global_key)
+        email_exists = conn.execute('SELECT * FROM users WHERE email = ?', (encrypted_email,)).fetchone()
+        
         # simple input error handling 
         if user_exists:
             flash('Username already exists. Try another one.')
@@ -45,9 +62,10 @@ def create_account():
             flash('Account already exits for this email. Try another one.')
             conn.close()
             return redirect(url_for('create_account'))
+       
         # now attempting insertion
-        hashed_password = generate_password_hash(password) #now with hashing!
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, email, hashed_password))
+        hashed_password = generate_password_hash(password) #hash password before storing 
+        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, hashed_password))
         conn.commit()
         conn.close()
         if user:
@@ -75,11 +93,12 @@ def login():
         #             ex: username = ('OR 1=1) -- this would log attacker in as first available user
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT * FROM users WHERE user_name = '{username}' AND password = '{password}'"
+        query = f"SELECT * FROM users WHERE user_name = '{username}'"
         user = cursor.execute(query).fetchone()
         conn.close()
         #----------------------------------------------------------------------------------------------------------------------------
         # checks if user is populated, now sets session to username from database, not from input, so an attacker could log in and 
+        # removed check password hash because there is no way to structure this so its vulnerable with a hashed password
         # sensitive data
         if user:
             session['username'] = user['user_name']

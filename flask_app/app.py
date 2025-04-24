@@ -17,12 +17,13 @@ def index():
     conn = get_db_connection()
     all_users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
+    # create seperate list of users to store manipulated (decrypted) email
     decrypted_users = []
     for user in all_users:
         user_dict = dict(user)
         user_dict['user_name'] = user['user_name']  # convert Row object to dictionary
         user_dict['password'] = user['password']
-        if user and (user['user_name'] == session.get('username')):
+        if user and (user['user_name'] == session.get('username')):     #if a user is logged in, show that user's decrypted email
             user_dict['email'] = AES_DECRYPT(user['email'], global_key)
         else:
             user_dict['email'] = user['email']
@@ -63,7 +64,7 @@ def create_account():
             return redirect(url_for('create_account'))
        
         # now attempting insertion
-        hashed_password = generate_password_hash(password) #now with hashing!
+        hashed_password = generate_password_hash(password) #hash password before storing 
         user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, hashed_password))
         conn.commit()
         conn.close()
