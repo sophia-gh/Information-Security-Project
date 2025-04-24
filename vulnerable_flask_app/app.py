@@ -93,7 +93,7 @@ def login():
         #             ex: username = ('OR 1=1) -- this would log attacker in as first available user
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT * FROM users WHERE user_name = '{username}'"
+        query = f"SELECT * FROM users WHERE user_name = '{username}' AND password = '{password}" # store password as plaintext for insecure version
         user = cursor.execute(query).fetchone()
         conn.close()
         #----------------------------------------------------------------------------------------------------------------------------

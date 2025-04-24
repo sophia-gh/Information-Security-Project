@@ -24,3 +24,5 @@ def AES_DECRYPT(encoded_bundle, key):
         return plaintext.decode('utf-8')
     except (ValueError, KeyError) as e:
         return f"[Decryption failed: {str(e)}]"
+
+# try to generate key, and save key in the table, retrieve key from table when decrypting 
