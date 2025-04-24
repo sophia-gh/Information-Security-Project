@@ -12,7 +12,7 @@ This is a very minimal python flask app that showcases propper sql and database 
 
 How to Run-- For sql error free version navigate to flask-app directory, for sql vulnerable version navigate to vulnerable_flask_app directory
 
-1. install libraries: make sure sqlite3 is already installed 
+1. install libraries: make sure sqlite3 is already installed on your computer
 ```
 $ pip install flask
 $ pip install werkzeug
