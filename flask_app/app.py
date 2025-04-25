@@ -24,7 +24,7 @@ def index():
         user_dict['user_name'] = user['user_name']  # convert Row object to dictionary
         user_dict['password'] = user['password']
         if user and (user['user_name'] == session.get('username')):     #if a user is logged in, show that user's decrypted email
-            user_dict['email'] = AES_DECRYPT(user['email'], global_key)
+            user_dict['email'] = AES_DECRYPT(user['email'], user['AES_key'])
         else:
             user_dict['email'] = user['email']
         decrypted_users.append(user_dict)
@@ -65,7 +65,7 @@ def create_account():
        
         # now attempting insertion
         hashed_password = generate_password_hash(password) #hash password before storing 
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, hashed_password))
+        user = conn.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", (username, encrypted_email, hashed_password, global_key))
         conn.commit()
         conn.close()
         if user:

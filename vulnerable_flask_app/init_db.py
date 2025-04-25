@@ -14,10 +14,9 @@ with open('vdatabaseSchema.sql') as f:
 cur = connection.cursor() 
 
 #populate users with data
-cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('johndoe', AES_ENCRYPT('john@example.com', global_key), 'supersecret'))
-cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test1',  AES_ENCRYPT('test1@example.com', global_key), 'password1'))
-cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test2', AES_ENCRYPT('test2@example.com', global_key), 'password2'))
-cur.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", ('test3', AES_ENCRYPT('test3@example.com', global_key), 'password3'))
-
+cur.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", ('johndoe', AES_ENCRYPT('john@example.com', global_key), 'supersecret', global_key))
+cur.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", ('test1',  AES_ENCRYPT('test1@example.com', global_key), 'password1', global_key))
+cur.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", ('test2', AES_ENCRYPT('test2@example.com', global_key), 'password2', global_key))
+cur.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", ('test3', AES_ENCRYPT('test3@example.com', global_key), 'password3', global_key))
 connection.commit()
 connection.close()

@@ -16,16 +16,19 @@ def get_db_connection():
 def index():
     # fetch data from the database and display it on the index page
     conn = get_db_connection()
-    all_users = conn.execute('SELECT * FROM users').fetchall()
+    try: all_users = conn.execute('SELECT * FROM users').fetchall()
+    except (sqlite3.OperationalError) as e:
+        return f"[Database Error: {str(e)}]"  # if there is no table to display, error will be displayed instead
     conn.close()
-    # create seperate list of users to store manipulated (decrypted) email
+    # create seperate list of users to pass to the index.html for display
+    # for logged in user, decrypts email to show plain text email on the page to demonstrate successful decryption
     decrypted_users = []
     for user in all_users:
         user_dict = dict(user)
-        user_dict['user_name'] = user['user_name']  # convert Row object to dictionary
-        user_dict['password'] = user['password']
+        user_dict['user_name'] = user['user_name']  
+        user_dict['password'] = generate_password_hash(user['password']) # for displaying purposes, shows hashed password instead of the stored plain text in the vulnerable database
         if user and (user['user_name'] == session.get('username')):     #if a user is logged in, show that user's decrypted email
-            user_dict['email'] = AES_DECRYPT(user['email'], global_key)
+            user_dict['email'] = AES_DECRYPT(user['email'], user['AES_key'])
         else:
             user_dict['email'] = user['email']
         decrypted_users.append(user_dict)
@@ -64,8 +67,8 @@ def create_account():
             return redirect(url_for('create_account'))
        
         # now attempting insertion
-        #hashed_password = generate_password_hash(password) #hash password before storing 
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, password))
+        # for vulnerable version, in order for sql injection attacks to work, store password as plaintext in the database instead of hashed
+        user = conn.execute("INSERT INTO users (user_name, email, password, AES_key) VALUES(?, ?, ?, ?)", (username, encrypted_email, password, global_key))
         conn.commit()
         conn.close()
         if user:
@@ -90,11 +93,13 @@ def login():
         #----------------------------------------------------------------------------------------------------------------------------
         # query structured to be vulnerable to injection -- no paramaterization
         # attack example: user can enter a malicious string for 'username' or 'password'
-        #             ex: username = ('OR 1=1) -- this would log attacker in as first available user
+        #             ex: username = ('OR 1=1 --) this would log attacker in as first available user 
+        #             ex: stacked queries such as-- username = ('OR 1=1; DROP TABLE users --) 
+        #                 this would allow an attacker to drop users from the database
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT * FROM users WHERE user_name = '{username}' and password = '{password}'" # store password as plaintext for insecure version
-        user = cursor.execute(query).fetchone()
+        query = f"SELECT * FROM users WHERE user_name = '{username}' and password = '{password}'" # sql injection attack only possible if the password is stored as plain text in the database
+        user = cursor.executescript(query).fetchone() # execute script allows for the execution of stacked queries, great for vulnerable app -- bad otherwise
         conn.close()
         #----------------------------------------------------------------------------------------------------------------------------
         # checks if user is populated, now sets session to username from database, not from input, so an attacker could log in and 

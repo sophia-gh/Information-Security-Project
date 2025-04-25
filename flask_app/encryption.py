@@ -1,9 +1,9 @@
-from Crypto.Random import get_random_bytes #initally used for global key
+from Crypto.Random import get_random_bytes 
 from Crypto.Cipher import AES
 import base64
 
-# static key instead of randomly computed bc that messed with the data in the database and made decryption harder
-global_key = b'\x05\xeat\x07&\t\x87B\xb0\xf6\xf8\xcbT\xf6r\x8f\xf9\xf6$\xf0\x19\x0b\x0c\x03,\x00\x98\xba\xdd\x8bl0' 
+# randomly generated key
+global_key = get_random_bytes(32)
 
 # modified from tutorial to store ciphertext and associated data as a single string
 def AES_ENCRYPT(user_data, key):
