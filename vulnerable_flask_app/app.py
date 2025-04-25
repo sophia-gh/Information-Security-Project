@@ -64,8 +64,8 @@ def create_account():
             return redirect(url_for('create_account'))
        
         # now attempting insertion
-        hashed_password = generate_password_hash(password) #hash password before storing 
-        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, hashed_password))
+        #hashed_password = generate_password_hash(password) #hash password before storing 
+        user = conn.execute("INSERT INTO users (user_name, email, password) VALUES(?, ?, ?)", (username, encrypted_email, password))
         conn.commit()
         conn.close()
         if user:
@@ -93,7 +93,7 @@ def login():
         #             ex: username = ('OR 1=1) -- this would log attacker in as first available user
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT * FROM users WHERE user_name = '{username}' AND password = '{password}" # store password as plaintext for insecure version
+        query = f"SELECT * FROM users WHERE user_name = '{username}' and password = '{password}'" # store password as plaintext for insecure version
         user = cursor.execute(query).fetchone()
         conn.close()
         #----------------------------------------------------------------------------------------------------------------------------
