@@ -21,7 +21,7 @@ $ flask --app app run
 
 ### Obstacles and Workarounds
 > Secure Version 
->> Encryption: For encryption I used the pycryptodome library which provided functions for implementing AES encryption and decryption, as well as key generation. The problem I ran into was key consitency. To fix this I stored the key used for encryption in an additional column on the user table. ANd ofr decryption I accessed the key from user table to maintain consitency. 
+>> Encryption: For encryption I used the pycryptodome library which provided functions for implementing AES encryption and decryption, as well as key generation. The problem I ran into was key consitency. To fix this I stored the key used for encryption in an additional column on the user table. And for decryption I accessed the key from user table to maintain consitency. 
 
 #
 
