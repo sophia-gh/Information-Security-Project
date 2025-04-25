@@ -23,6 +23,8 @@ $ flask --app app run
 > Secure Version 
 >> Encryption: For encryption I used the pycryptodome library which provided functions for implementing AES encryption and decryption, as well as key generation. The problem I ran into was key consitency. To fix this I stored the key used for encryption in an additional column on the user table. ANd ofr decryption I accessed the key from user table to maintain consitency. 
 
+#
+
 > Vulnerable Version
 >> SQL Injection Vulnerability and Password Hashing: For password Hashing I utilized function from the werkzeug security library. These functions came with their own use cases for the flask app that differ from password checking through SQL only. With hashed passwords, SQL injection was impossible to do through the login portal unless the 'attacker' knew the password of some user in the table. To work around this issue, i decided to store the passwords in the vulnerable version as plain-text instead, and use SQL queries only to login. 
 
