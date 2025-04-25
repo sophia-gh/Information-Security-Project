@@ -36,7 +36,7 @@ $ flask --app app run
 >- src: Basile. (2022, April 13). AES encryption & decryption in python: Implementation, Modes & Key Management.  Onboardbase. https://onboardbase.com/blog/aes-encryption-decryption/ 
 
 >I also used this page for documentation of pycryptodome.
->- src: Modern modes of operation for symmetric block ciphers. Modern modes of operation for symmetric block ciphers - PyCryptodome 3.230b0 documentation. (n.d.). https://www.pycryptodome.org/srccipher/modern#eax-mode 
+>- src: Modern modes of operation for symmetric block ciphers. Modern modes of operation for symmetric block ciphers - PyCryptodome 3.230b0 documentation. (n.d.). https://www.pycryptodome.org/srccipher/modern#eax-mode 
 
 ### Technoloies Used
 > python flask -- python library
