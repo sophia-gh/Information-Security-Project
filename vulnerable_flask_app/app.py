@@ -99,7 +99,8 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
         query = f"SELECT * FROM users WHERE user_name = '{username}' and password = '{password}'" # sql injection attack only possible if the password is stored as plain text in the database
-        user = cursor.executescript(query).fetchone() # execute script allows for the execution of stacked queries, great for vulnerable app -- bad otherwise
+        user = cursor.execute(query).fetchone() # to demonstrate malicious login
+        #user = cursor.executescript(query).fetchone() # to demonstrate stacked queries, great for vulnerable app -- bad otherwise
         conn.close()
         #----------------------------------------------------------------------------------------------------------------------------
         # checks if user is populated, now sets session to username from database, not from input, so an attacker could log in and 
