@@ -1,7 +1,7 @@
 # Information-Security-Project
 This is a very minimal python flask app that showcases propper sql and database management, as well safe storage of data. For encrypting emails I used a simplified AES(256) implimentation using the 'pycryptodome' library. The implementation in this project is not secure in a production environent as it does not emmploy proper key storage or generation. For password storage I used a simple hash function from the werkzeug library, this was simpler to implement because it was one sided and had less variables to manage. For the front end I used flask to create webpages to interact with the database. The database was implemented and manipulated using sqlite 3. 
 
-### How to Run-- For sql error free version navigate to flask-app directory, for sql vulnerable version navigate to vulnerable_flask_app directory
+### How to Run-- For sql error free version navigate to flask_app directory, for sql vulnerable version navigate to vulnerable_flask_app directory
 
 1. install libraries: make sure sqlite3 is already installed on your computer
 ```
